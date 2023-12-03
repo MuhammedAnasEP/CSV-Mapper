@@ -87,15 +87,31 @@
 
         .error_message  p {
                 background-color: #fce4e4;
-                border: 1px solid #fcc2c3;                
+                border: 1px solid #bf484a;                
                 padding: 20px 30px;
                 color: #cc0033;
                 font-family: Helvetica, Arial, sans-serif;
-                font-size: 13px;
+                font-size: 14px;
                 font-weight: bold;
                 line-height: 20px;
                 text-shadow: 1px 1px rgba(250,250,250,.3);
-            }
+        }
+
+        .success_message {
+            align-items: center;
+        }
+
+        .success_message  p {
+                background-color: #fce4e4;
+                border: 1px solid #48d738;                
+                padding: 20px 30px;
+                color: #1e7d26;
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 14px;
+                font-weight: bold;
+                line-height: 20px;
+                text-shadow: 1px 1px rgba(250,250,250,.3);
+        }
         
 
     </style>
@@ -112,6 +128,11 @@
 
         <div id="data_table"></div>
         <div class="error_message" id="error_message"></div>
+        {% if message %}
+            <div class="success_message">
+                <p>{{message}}</p>
+            </div>
+        {% endif %}
     </div>
 
     <script>
@@ -129,8 +150,8 @@
             table.classList.add("csv-table");
     
             // Check if "Name" and "Age" headers exist
-            const nameIndex = headers.findIndex(header => header.trim().toLowerCase() === "name");
-            const ageIndex = headers.findIndex(header => header.trim().toLowerCase() === "age");
+            const nameIndex = headers.findIndex(header => header.trim().replaceAll(' ','').toLowerCase() === "name");
+            const ageIndex = headers.findIndex(header => header.trim().replaceAll(' ','').toLowerCase() === "age");
     
             if (nameIndex !== -1 && ageIndex !== -1) {
                 // Create header row
@@ -147,7 +168,8 @@
                 data.forEach(rowData => {
                     const nameCellData = rowData[nameIndex];
                     const ageCellData = rowData[ageIndex];
-    
+                    
+
                     // Check if both "Name" and "Age" cells have valid data
                     if (nameCellData.trim() !== '' && ageCellData.trim() !== '') {
                         const row = document.createElement("tr");
