@@ -64,26 +64,152 @@
             text-align: center;
         }
 
+        .csv-table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .csv-table th, .csv-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .csv-table th {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .error_message {
+            align-items: center;
+        }
+
+        .error_message  p {
+                background-color: #fce4e4;
+                border: 1px solid #fcc2c3;                
+                padding: 20px 30px;
+                color: #cc0033;
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 13px;
+                font-weight: bold;
+                line-height: 20px;
+                text-shadow: 1px 1px rgba(250,250,250,.3);
+            }
+        
 
     </style>
 </head>
-<body>
-    
+<body>    
     <div>
         <h1>CSV Mapper</h1>
         <form action="/upload" method="post" enctype="multipart/form-data" id="upload-form">
             <label for="file">Choose a CSV file</label>
-            <input type="file" name="file" accept=".csv" required><br>
-
-            <label for="name">Name Column</label>
-            <input name="name" id="name" required><br>
-
-            <label for="age">Age Column</label>
-            <input name="age" id="age" required><br>
+            <input type="file" name="file" id="csv_file" accept=".csv" required><br>
 
             <button type="submit">Submit</button>
         </form>
+
+        <div id="data_table"></div>
+        <div class="error_message" id="error_message"></div>
     </div>
 
+    <script>
+        // Function to display "Name" and "Age" columns in an HTML table
+        function displayCsvTable(headers, data) {
+            const tableContainer = document.getElementById("data_table");
+            const error_message = document.getElementById("error_message");
+    
+            // Clear existing content
+            tableContainer.innerHTML = "";
+            error_message.innerHTML = "";
+    
+            // Create table element
+            const table = document.createElement("table");
+            table.classList.add("csv-table");
+    
+            // Check if "Name" and "Age" headers exist
+            const nameIndex = headers.findIndex(header => header.trim().toLowerCase() === "name");
+            const ageIndex = headers.findIndex(header => header.trim().toLowerCase() === "age");
+    
+            if (nameIndex !== -1 && ageIndex !== -1) {
+                // Create header row
+                const headerRow = document.createElement("tr");
+                const nameTh = document.createElement("th");
+                nameTh.textContent = headers[nameIndex];
+                const ageTh = document.createElement("th");
+                ageTh.textContent = headers[ageIndex];
+                headerRow.appendChild(nameTh);
+                headerRow.appendChild(ageTh);
+                table.appendChild(headerRow);
+    
+                // Create data rows for "Name" and "Age" columns
+                data.forEach(rowData => {
+                    const nameCellData = rowData[nameIndex];
+                    const ageCellData = rowData[ageIndex];
+    
+                    // Check if both "Name" and "Age" cells have valid data
+                    if (nameCellData.trim() !== '' && ageCellData.trim() !== '') {
+                        const row = document.createElement("tr");
+                        const nameCell = document.createElement("td");
+                        const ageCell = document.createElement("td");
+    
+                        nameCell.textContent = nameCellData;
+                        ageCell.textContent = ageCellData;
+    
+                        row.appendChild(nameCell);
+                        row.appendChild(ageCell);
+    
+                        table.appendChild(row);
+                    }
+                });
+    
+                // Append table to the container
+                tableContainer.appendChild(table);
+            } else {
+                // Display an error message if "Name" or "Age" headers are missing
+                const errorMessage = document.createElement("p");
+                errorMessage.textContent = "The CSV file must contain 'Name' and 'Age' headers.";
+                error_message.appendChild(errorMessage);
+            }
+        }
+    
+        const csvFileInput = document.getElementById("csv_file");
+        const reader = new FileReader();
+        let csvHeaders = [];
+        let csvData = [];
+    
+        // file upload input
+        csvFileInput.addEventListener("change", (e) => {
+            const fileList = e.target.files;
+            const file = fileList[0];
+    
+            if (file) {
+                reader.readAsText(file);
+            } else {
+                // Display an error message 
+                const error_message = document.getElementById("error_message");
+                error_message.innerHTML = "";
+                const errorMessage = document.createElement("p");
+                errorMessage.textContent = "Please select a CSV file.";
+                error_message.appendChild(errorMessage);
+            }
+        });
+    
+        reader.addEventListener("load", (e) => {
+            const result = e.target.result;
+            const csvRows = result.split(/\r?\n/);
+    
+            // Extract headers
+            csvHeaders = csvRows[0].split(/,/);
+    
+            // Extract data rows
+            csvData = csvRows.slice(1).map(row => row.split(/,/));
+    
+            // Display "Name" and "Age" columns in an HTML table
+            displayCsvTable(csvHeaders, csvData);
+        });
+    </script>
+</script>
 </body>
 </html>
