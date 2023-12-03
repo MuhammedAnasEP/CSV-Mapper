@@ -26,8 +26,7 @@ def home(request: Request):
 @app.post('/upload')
 async def upload(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
     csvReader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'))
-    print(csvReader)
-
+    
     datas = []
 
     for row in csvReader:
